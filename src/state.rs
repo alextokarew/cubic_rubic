@@ -21,6 +21,10 @@ impl State {
             faces: new_faces
         }
     }
+
+    pub fn hash(&self) -> u128 {
+        self.faces.iter().fold(0, |acc, x| acc*6 + (*x as u128))
+    }
 }
 
 const FACE_NAMES: [&str; 6]  = ["W", "R", "G", "O", "B", "Y"];
