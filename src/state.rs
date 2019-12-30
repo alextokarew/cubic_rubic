@@ -27,7 +27,7 @@ impl State {
     }
 }
 
-const FACE_NAMES: [&str; 6]  = ["W", "R", "G", "O", "B", "Y"];
+const FACE_NAMES: [&str; 6]  = ["W", "R", "B", "O", "G", "Y"];
 
 const INDICES_FROM: [usize; 72] = [
      8,  9, 10, 32, 33, 34, 24, 25, 26, 16, 17, 18,

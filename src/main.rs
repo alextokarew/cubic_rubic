@@ -1,7 +1,21 @@
 mod state;
 
+use std::collections::{HashMap, VecDeque};
+use state::State;
+
 fn main() {
-    let initial_state: state::State = state::State {
+    let initial_state: State = State {
+        faces: [
+            0,0,2,0,0,0,0,0,
+            1,1,1,1,1,1,1,2,
+            2,2,3,2,2,3,2,2,
+            0,3,3,5,3,5,3,3,
+            4,4,4,4,4,4,4,4,
+            5,5,5,5,3,5,5,1
+        ]
+    };
+
+    let target_state: State = State {
         faces: [
             0,0,0,0,0,0,0,0,
             1,1,1,1,1,1,1,1,
@@ -13,18 +27,96 @@ fn main() {
     };
 
     println!("Initial state is: {:?}", initial_state);
-    println!("Turn 0 CW: {:?}", initial_state.turn(0, true));
-    println!("Turn 1 CW: {:?}", initial_state.turn(1, true));
-    println!("Turn 2 CW: {:?}", initial_state.turn(2, true));
-    println!("Turn 3 CW: {:?}", initial_state.turn(3, true));
-    println!("Turn 4 CW: {:?}", initial_state.turn(4, true));
-    println!("Turn 5 CW: {:?}", initial_state.turn(5, true));
+    println!("Target state is: {:?}", target_state);
 
-    println!("Turn 0 CCW: {:?}", initial_state.turn(0, false));
-    println!("Turn 1 CCW: {:?}", initial_state.turn(1, false));
-    println!("Turn 2 CCW: {:?}", initial_state.turn(2, false));
-    println!("Turn 3 CCW: {:?}", initial_state.turn(3, false));
-    println!("Turn 4 CCW: {:?}", initial_state.turn(4, false));
-    println!("Turn 5 CCW: {:?}", initial_state.turn(5, false));
+    let path = search(initial_state, target_state);
+
+    for mv in path {
+        if *mv < 6 {
+            println!("{} CW", mv)
+        } else {
+            println!("{} CCW", *mv % 6)
+        }
+    }
 }
 
+fn search(initial_state: State, target_state: State) -> &'static [u8] {
+    //value is a turn 0..5 - cw, 6..11 - ccw
+    let mut forward_paths: HashMap<u128, Vec<u8>> = HashMap::new();
+    forward_paths.insert(initial_state.hash(), Vec::new());
+    let mut forward_queue: VecDeque<State> = VecDeque::new();
+    forward_queue.push_back(initial_state);
+
+    let mut back_paths: HashMap<u128, Vec<u8>> = HashMap::new();
+    back_paths.insert(target_state.hash(), Vec::new());
+    let mut back_queue: VecDeque<State> = VecDeque::new();
+    back_queue.push_back(target_state);
+
+    while !forward_queue.is_empty() && !back_queue.is_empty() {
+        let forward_state = forward_queue.pop_front().unwrap();
+        let forward_state_hash = forward_state.hash();
+        if forward_paths.contains_key(&forward_state_hash) && back_paths.contains_key(&forward_state_hash) {
+            println!("Forward {:?}", forward_paths.get(&forward_state_hash));
+            println!("Back {:?}", back_paths.get(&forward_state_hash));
+            return &[];
+        } else {
+
+            for turn in 0..12 {
+                let turned_state = forward_state.turn(turn % 6, turn < 6);
+                let turned_state_hash = turned_state.hash();
+                if forward_paths.contains_key(&turned_state_hash) && back_paths.contains_key(&turned_state_hash) {
+                    println!("Forward {:?}", forward_paths.get(&turned_state_hash));
+                    println!("Back {:?}", back_paths.get(&turned_state_hash));
+                    return &[];
+                }
+                if !forward_paths.contains_key(&turned_state_hash) {
+                    let mut path = Vec::new();
+                    let base_path = forward_paths.get(&forward_state_hash).unwrap();
+                    println!("Base path: {}", base_path.len());
+                    for x in base_path {
+                        path.push(*x);
+                    }
+                    path.push(turn);
+
+                    forward_paths.insert(turned_state.hash(), path);
+                    forward_queue.push_back(turned_state);
+                }
+            }
+        }
+
+        let back_state = back_queue.pop_front().unwrap();
+        let back_state_hash = back_state.hash();
+        if forward_paths.contains_key(&back_state_hash) && back_paths.contains_key(&back_state_hash) {
+            println!("Forward {:?}", forward_paths.get(&back_state_hash));
+            println!("Back {:?}", back_paths.get(&back_state_hash));
+            return &[];
+        } else {
+
+            for turn in 0..12 {
+                let turned_state = back_state.turn(turn % 6, turn < 6);
+                let turned_state_hash = turned_state.hash();
+                if forward_paths.contains_key(&turned_state_hash) && back_paths.contains_key(&turned_state_hash) {
+                    println!("Forward {:?}", forward_paths.get(&turned_state_hash));
+                    println!("Back {:?}", back_paths.get(&turned_state_hash));
+                    return &[];
+                }
+                if !back_paths.contains_key(&turned_state_hash) {
+                    let mut path = Vec::new();
+                    let base_path = back_paths.get(&back_state_hash).unwrap();
+                    println!("Base path: {}", base_path.len());
+                    for x in base_path {
+                        path.push(*x);
+                    }
+                    path.push(turn);
+
+                    back_paths.insert(turned_state.hash(), path);
+                    back_queue.push_back(turned_state);
+                }
+            }
+        }
+
+
+    }
+
+    return &[];
+}
