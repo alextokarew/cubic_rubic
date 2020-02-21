@@ -23,6 +23,13 @@ impl State {
             new_faces[to_index] = self.faces[from_index];
         }
 
+        let face_shift: usize = (face * 8).into();
+        for i in 0usize..8 {
+            let from_index = i + face_shift;
+            let to_index = FRONT_INDICES_TO[if cw { i } else {7 - i}] + face_shift;
+            new_faces[to_index] = self.faces[from_index];
+        }
+
         State {
             faces: new_faces
         }
@@ -43,6 +50,8 @@ const INDICES_FROM: [usize; 72] = [
      0,  3,  5,  8, 11, 13, 40, 43, 45, 31, 28, 26,
     13, 14, 15, 21, 22, 23, 29, 30, 31, 37, 38, 39
 ];
+
+const FRONT_INDICES_TO: [usize; 8] = [2, 4, 7, 1, 6 ,0, 3, 5];
 
 pub const ZERO_STATE: State = State {
     faces: [
@@ -121,7 +130,7 @@ mod tests {
 
     #[test]
     fn test_hash() {
-        assert_eq!(12345, ZERO_STATE.hash());
+        assert_eq!(0, ZERO_STATE.hash());
     }
 
     #[test]
@@ -132,25 +141,47 @@ mod tests {
         assert!(false);
     }
 
+    // #[test]
+    // fn test_turn_top_left() {
+    //     let turned = ZERO_STATE.turn(0, false);
+    //     println!("Turned top left: {:?}", turned);
+    //     assert!(false);
+    // }
+
+    // #[test]
+    // fn test_turn_front_right() {
+    //     let turned = ZERO_STATE.turn(1, true);
+    //     println!("Turned front right: {:?}", turned);
+
+    //     assert!(false);
+    // }
+
+    // #[test]
+    // fn test_turn_front_left() {
+    //     let turned = ZERO_STATE.turn(1, false);
+    //     println!("Turned front left: {:?}", turned);
+    //     assert!(false);
+    // }
+
     #[test]
-    fn test_turn_top_left() {
-        let turned = ZERO_STATE.turn(0, false);
-        println!("Turned top left: {:?}", turned);
+    fn test_series_of_right_turns() {
+        let mut turned = ZERO_STATE;
+        for i in 0..5 {
+            turned = turned.turn(i, true);
+            println!("Turn {}:{:?}\n", i, turned);
+
+        }
         assert!(false);
     }
 
     #[test]
-    fn test_turn_front_right() {
-        let turned = ZERO_STATE.turn(1, true);
-        println!("Turned front right: {:?}", turned);
+    fn test_series_of_left_turns() {
+        let mut turned = ZERO_STATE;
+        for i in 0..5 {
+            turned = turned.turn(i, false);
+            println!("Turn {}:{:?}\n", i, turned);
 
-        assert!(false);
-    }
-
-    #[test]
-    fn test_turn_front_left() {
-        let turned = ZERO_STATE.turn(1, false);
-        println!("Turned front left: {:?}", turned);
+        }
         assert!(false);
     }
 }
