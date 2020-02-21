@@ -3,6 +3,12 @@ pub struct State {
 }
 
 impl State {
+    pub fn new(faces: [usize; 48]) -> State {
+        State {
+            faces: faces
+        }
+    }
+
     pub fn turn(&self, face: u8, cw: bool) -> State {
         let mut new_faces = [0; 48];
         new_faces.copy_from_slice(&self.faces);
@@ -37,6 +43,17 @@ const INDICES_FROM: [usize; 72] = [
      0,  3,  5,  8, 11, 13, 40, 43, 45, 31, 28, 26,
     13, 14, 15, 21, 22, 23, 29, 30, 31, 37, 38, 39
 ];
+
+pub const ZERO_STATE: State = State {
+    faces: [
+        0,0,0,0,0,0,0,0,
+        1,1,1,1,1,1,1,1,
+        2,2,2,2,2,2,2,2,
+        3,3,3,3,3,3,3,3,
+        4,4,4,4,4,4,4,4,
+        5,5,5,5,5,5,5,5
+    ]
+};
 
 impl std::fmt::Debug for State {
 
@@ -77,5 +94,63 @@ impl std::fmt::Debug for State {
                FACE_NAMES[self.faces[43]], FACE_NAMES[5], FACE_NAMES[self.faces[44]],
                FACE_NAMES[self.faces[45]], FACE_NAMES[self.faces[46]], FACE_NAMES[self.faces[47]]
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_fmt_debug() {
+        let result = format!("{:?}", ZERO_STATE);
+        let expected = "\n\
+        WWW\n\
+        WWW\n\
+        WWW\n\
+        \n\
+        RRR BBB OOO GGG\n\
+        RRR BBB OOO GGG\n\
+        RRR BBB OOO GGG\n\
+        \n\
+        YYY\n\
+        YYY\n\
+        YYY";
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn test_hash() {
+        assert_eq!(12345, ZERO_STATE.hash());
+    }
+
+    #[test]
+    fn test_turn_top_right() {
+        let turned = ZERO_STATE.turn(0, true);
+        println!("Turned top right: {:?}", turned);
+
+        assert!(false);
+    }
+
+    #[test]
+    fn test_turn_top_left() {
+        let turned = ZERO_STATE.turn(0, false);
+        println!("Turned top left: {:?}", turned);
+        assert!(false);
+    }
+
+    #[test]
+    fn test_turn_front_right() {
+        let turned = ZERO_STATE.turn(1, true);
+        println!("Turned front right: {:?}", turned);
+
+        assert!(false);
+    }
+
+    #[test]
+    fn test_turn_front_left() {
+        let turned = ZERO_STATE.turn(1, false);
+        println!("Turned front left: {:?}", turned);
+        assert!(false);
     }
 }
