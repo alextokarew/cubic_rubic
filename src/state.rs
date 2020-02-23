@@ -32,7 +32,6 @@ impl State {
 
             new_faces[to_face] = if to_digit_start == 6 {
                 (self.faces[to_face] & 0x0FFFFF00) | edge >> 24 | edge << 8
-
             } else {
                 let to_shift = to_digit_start * 4;
                 (self.faces[to_face] & !(0xFFF00000 >> to_shift)) | edge >> to_shift
@@ -276,25 +275,35 @@ mod tests {
         assert_eq!(expected, turned);
     }
 
-    // #[test]
-    // fn test_series_of_right_turns() {
-    //     let mut turned = ZERO_STATE;
-    //     for i in 0..5 {
-    //         turned = turned.turn(i, true);
-    //         println!("Turn {}:{:?}\n", i, turned);
+    #[test]
+    fn test_series_of_100_random_turns() {
+        extern crate rand;
+        use rand::prelude::*;
+        
+        let turns: Vec<(usize, bool)> = {
+            let mut vec = Vec::new();
+            let mut rng = thread_rng();
+            for _ in 0..100 {
+                let turn = (rng.gen_range(0, 6), rng.gen());
+                vec.push(turn);
+            }
+            vec
+        };
 
-    //     }
-    //     assert!(false);
-    // }
+        println!("{} turns are: {:?}", turns.len(), turns);
 
-    // #[test]
-    // fn test_series_of_left_turns() {
-    //     let mut turned = ZERO_STATE;
-    //     for i in 0..5 {
-    //         turned = turned.turn(i, false);
-    //         println!("Turn {}:{:?}\n", i, turned);
+        let mut turned = ZERO_STATE;
+        for (face, cw) in &turns {
+            turned = turned.turn(*face, *cw);
+            println!("Turn {} - {}:{:?}\n", face, cw, turned);
 
-    //     }
-    //     assert!(false);
-    // }
+        }
+
+        for (face, cw) in turns.iter().rev() {
+            turned = turned.turn(*face, !cw);
+            println!("Turn {} - {}:{:?}\n", face, !cw, turned);
+
+        }
+        assert_eq!(ZERO_STATE, turned);
+    }
 }
