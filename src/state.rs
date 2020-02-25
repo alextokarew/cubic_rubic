@@ -64,7 +64,14 @@ impl State {
     }
 }
 
-const FACE_COLORS: [&str; 6]  = ["W", "R", "B", "O", "G", "Y"];
+const FACE_COLORS: [&str; 6]  = [
+    "\x1b[48;2;255;255;255;30mW\x1b[0m",
+    "\x1b[48;2;255;0;0;30mR\x1b[0m",
+    "\x1b[48;2;0;0;255;30mB\x1b[0m",
+    "\x1b[48;2;255;127;0;30mO\x1b[0m",
+    "\x1b[48;2;0;255;0;30mG\x1b[0m",
+    "\x1b[48;2;255;255;0;30mY\x1b[0m"
+];
 
 const AFFECTED_SIDES: [[(usize, u8); 4]; 6] = [
     [(3, 0), (2, 0), (1, 0), (4, 0)],
@@ -75,7 +82,7 @@ const AFFECTED_SIDES: [[(usize, u8); 4]; 6] = [
     [(1, 4), (2, 4), (3, 4), (4, 4)]
 ];
 
-const ZERO_STATE: State = State::new([
+pub const ZERO_STATE: State = State::new([
     0x00000000,
     0x11111111,
     0x22222222,
