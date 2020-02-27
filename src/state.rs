@@ -6,13 +6,95 @@ pub type Face = u32;
 pub type Faces = [Face; 6];
 
 pub struct State {
-    pub faces: Faces
+    faces: Faces,
+    pub hash: u128
 }
 
+const AFFECTED_SIDES: [[(usize, u8); 4]; 6] = [
+    [(3, 0), (2, 0), (1, 0), (4, 0)],
+    [(0, 4), (2, 6), (5, 0), (4, 2)],
+    [(0, 2), (3, 6), (5, 2), (1, 2)],
+    [(0, 0), (4, 6), (5, 4), (2, 2)],
+    [(0, 6), (1, 6), (5, 6), (3, 2)],
+    [(1, 4), (2, 4), (3, 4), (4, 4)]
+];
+
+const FACE_COLORS: [&str; 6]  = [
+    "\x1b[48;2;255;255;255;30mW\x1b[0m",
+    "\x1b[48;2;255;0;0;30mR\x1b[0m",
+    "\x1b[48;2;0;0;255;30mB\x1b[0m",
+    "\x1b[48;2;255;127;0;30mO\x1b[0m",
+    "\x1b[48;2;0;255;0;30mG\x1b[0m",
+    "\x1b[48;2;255;255;0;30mY\x1b[0m"
+];
+
 impl State {
+
     pub const fn new(faces: Faces) -> State {
+        let hash = {
+            let mut acc: u128 = 0;
+
+            //This ugly code is because Rust doesn't support for in const functions
+            acc = acc*6 + ((faces[0] >> 28) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[0] >> 24) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[0] >> 20) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[0] >> 16) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[0] >> 12) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[0] >> 8) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[0] >> 4) & 0xFu32) as u128;
+            acc = acc*6 + (faces[0] & 0xFu32) as u128;
+
+            acc = acc*6 + ((faces[1] >> 28) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[1] >> 24) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[1] >> 20) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[1] >> 16) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[1] >> 12) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[1] >> 8) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[1] >> 4) & 0xFu32) as u128;
+            acc = acc*6 +  (faces[1] & 0xFu32) as u128;
+
+            acc = acc*6 + ((faces[2] >> 28) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[2] >> 24) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[2] >> 20) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[2] >> 16) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[2] >> 12) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[2] >> 8) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[2] >> 4) & 0xFu32) as u128;
+            acc = acc*6 +  (faces[2] & 0xFu32) as u128;
+
+            acc = acc*6 + ((faces[3] >> 28) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[3] >> 24) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[3] >> 20) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[3] >> 16) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[3] >> 12) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[3] >> 8) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[3] >> 4) & 0xFu32) as u128;
+            acc = acc*6 +  (faces[3] & 0xFu32) as u128;
+
+            acc = acc*6 + ((faces[4] >> 28) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[4] >> 24) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[4] >> 20) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[4] >> 16) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[4] >> 12) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[4] >> 8) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[4] >> 4) & 0xFu32) as u128;
+            acc = acc*6 +  (faces[4] & 0xFu32) as u128;
+
+            acc = acc*6 + ((faces[5] >> 28) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[5] >> 24) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[5] >> 20) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[5] >> 16) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[5] >> 12) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[5] >> 8) & 0xFu32) as u128;
+            acc = acc*6 + ((faces[5] >> 4) & 0xFu32) as u128;
+            acc = acc*6 +  (faces[5] & 0xFu32) as u128;
+
+            acc
+        };
+
         State {
-            faces: faces
+            faces: faces,
+            hash: hash
         }
     }
 
@@ -49,19 +131,6 @@ impl State {
         State::new(new_faces)
     }
 
-    //TODO: memoization of hash
-    pub fn hash(&self) -> u128 {
-        let shift = 6u128.pow(8);
-
-        self.faces.iter().fold(0, |acc, x| {
-            let mut compressed: u128 = 0;
-            for pos in (0..8).rev() {
-                compressed = compressed*6 + ((x >> 4*pos) & 0xFu32) as u128;
-            }
-            acc*shift + compressed
-        })
-    }
-
     pub fn color(&self, index: usize) -> &str {
         let face_index = index / 8;
         let shift = (7 - index % 8) * 4;
@@ -72,24 +141,6 @@ impl State {
         FACE_COLORS[color_code]
     }
 }
-
-const FACE_COLORS: [&str; 6]  = [
-    "\x1b[48;2;255;255;255;30mW\x1b[0m",
-    "\x1b[48;2;255;0;0;30mR\x1b[0m",
-    "\x1b[48;2;0;0;255;30mB\x1b[0m",
-    "\x1b[48;2;255;127;0;30mO\x1b[0m",
-    "\x1b[48;2;0;255;0;30mG\x1b[0m",
-    "\x1b[48;2;255;255;0;30mY\x1b[0m"
-];
-
-const AFFECTED_SIDES: [[(usize, u8); 4]; 6] = [
-    [(3, 0), (2, 0), (1, 0), (4, 0)],
-    [(0, 4), (2, 6), (5, 0), (4, 2)],
-    [(0, 2), (3, 6), (5, 2), (1, 2)],
-    [(0, 0), (4, 6), (5, 4), (2, 2)],
-    [(0, 6), (1, 6), (5, 6), (3, 2)],
-    [(1, 4), (2, 4), (3, 4), (4, 4)]
-];
 
 pub const ZERO_STATE: State = State::new([
     0x00000000,
@@ -144,7 +195,7 @@ impl std::fmt::Debug for State {
 
 impl PartialEq for State {
     fn eq(&self, other: &Self) -> bool {
-        self.faces == other.faces
+        self.hash == other.hash
     }
 }
 
@@ -172,7 +223,7 @@ mod tests {
 
     #[test]
     fn test_hash() {
-        assert_eq!(0x21BE8BC7E50D8E7FC224DEECFF, ZERO_STATE.hash());
+        assert_eq!(0x21BE8BC7E50D8E7FC224DEECFF, ZERO_STATE.hash);
     }
 
     #[test]
