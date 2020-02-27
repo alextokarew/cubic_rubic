@@ -49,8 +49,17 @@ impl State {
         State::new(new_faces)
     }
 
+    //TODO: memoization of hash
     pub fn hash(&self) -> u128 {
-        self.faces.iter().fold(0, |acc, x| acc*6 + (*x as u128))
+        let shift = 6u128.pow(8);
+
+        self.faces.iter().fold(0, |acc, x| {
+            let mut compressed: u128 = 0;
+            for pos in (0..8).rev() {
+                compressed = compressed*6 + ((x >> 4*pos) & 0xFu32) as u128;
+            }
+            acc*shift + compressed
+        })
     }
 
     pub fn color(&self, index: usize) -> &str {
@@ -161,10 +170,10 @@ mod tests {
         assert_eq!(expected, result);
     }
 
-    // #[test]
-    // fn test_hash() {
-    //     assert_eq!(0, ZERO_STATE.hash());
-    // }
+    #[test]
+    fn test_hash() {
+        assert_eq!(0x21BE8BC7E50D8E7FC224DEECFF, ZERO_STATE.hash());
+    }
 
     #[test]
     fn test_eq() {
