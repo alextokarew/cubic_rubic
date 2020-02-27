@@ -204,20 +204,40 @@ mod tests {
     use super::*;
 
     #[test]
+    #[allow(non_snake_case)]
     fn test_fmt_debug() {
         let result = format!("{:?}", ZERO_STATE);
-        let expected = "\n\
-        WWW\n\
-        WWW\n\
-        WWW\n\
+        let W = "\x1b[48;2;255;255;255;30mW\x1b[0m";
+        let R = "\x1b[48;2;255;0;0;30mR\x1b[0m";
+        let B = "\x1b[48;2;0;0;255;30mB\x1b[0m";
+        let O = "\x1b[48;2;255;127;0;30mO\x1b[0m";
+        let G = "\x1b[48;2;0;255;0;30mG\x1b[0m";
+        let Y = "\x1b[48;2;255;255;0;30mY\x1b[0m";
+
+        let WWW = format!("{}{}{}", W, W, W);
+        let RRR = format!("{}{}{}", R, R, R);
+        let BBB = format!("{}{}{}", B, B, B);
+        let OOO = format!("{}{}{}", O, O, O);
+        let GGG = format!("{}{}{}", G, G, G);
+        let YYY = format!("{}{}{}", Y, Y, Y);
+
+        let expected = format!("\n\
+        {}\n\
+        {}\n\
+        {}\n\
         \n\
-        RRR BBB OOO GGG\n\
-        RRR BBB OOO GGG\n\
-        RRR BBB OOO GGG\n\
+        {} {} {} {}\n\
+        {} {} {} {}\n\
+        {} {} {} {}\n\
         \n\
-        YYY\n\
-        YYY\n\
-        YYY";
+        {}\n\
+        {}\n\
+        {}", WWW, WWW, WWW,
+        RRR, BBB, OOO, GGG,
+        RRR, BBB, OOO, GGG,
+        RRR, BBB, OOO, GGG,
+        YYY, YYY, YYY);
+        
         assert_eq!(expected, result);
     }
 
