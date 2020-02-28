@@ -98,6 +98,25 @@ impl State {
         }
     }
 
+    pub fn from_hash(hash: u128) -> State {
+        let mut faces: Faces = [0; 6];
+        let mut hash_buffer = hash;
+
+        for i in (0..48).rev() {
+            let face_index = i / 8;
+            let offset = (7 - i % 8) * 4;
+            let digit = hash_buffer % 6;
+            faces[face_index] |= (digit << offset) as u32; 
+
+            hash_buffer = hash_buffer / 6;
+        }
+        
+        State {
+            faces: faces,
+            hash: hash
+        }
+    }
+
     pub fn turn(&self, face: usize, cw: bool) -> State {
         let mut new_faces = self.faces.clone();
         let sides = AFFECTED_SIDES[face];
@@ -244,6 +263,21 @@ mod tests {
     #[test]
     fn test_hash() {
         assert_eq!(0x21BE8BC7E50D8E7FC224DEECFF, ZERO_STATE.hash);
+    }
+
+    #[test]
+    fn test_create_from_hash() {
+        let state = State::from_hash(0x21BE8BC7E50D8E7FC224DEECFF);
+        assert_eq!(state.faces, ZERO_STATE.faces);
+
+        assert_eq!(State::from_hash(245887740968352614570107731224015).faces, [
+            0x00000030,
+            0x22111132,
+            0x23322155,
+            0x44433353,
+            0x11052444,
+            0x54421555
+        ]);
     }
 
     #[test]
