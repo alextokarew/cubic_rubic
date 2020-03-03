@@ -4,6 +4,9 @@ use state::{State, ZERO_STATE};
 use std::collections::{HashMap, VecDeque};
 
 fn main() {
+    let cpus = num_cpus::get();
+    println!("Number of CPUs: {}", cpus);
+
     let initial_state: State = State::new([
         0x00052000,
         0x11521111,
